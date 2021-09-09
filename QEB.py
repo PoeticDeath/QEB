@@ -110,40 +110,48 @@ def QEBOverWriteZero():
     QEBrsFile.close()
 def Server():
     print('QEB Hosting Started.')
-    while QEBHasClient() == False:
-        pass
-    print('QEB Client Connected.')
     while True:
-        Request = [True]
-        while Request[0] == True:
-            Request = QEBAwaitingRequest(True)
-        QEBFinishRequest()
-        print(Request[1])
+        while QEBHasClient() == False:
+            pass
+        print('QEB Client Connected.')
+        while True:
+            Request = [True]
+            while Request[0] == True:
+                Request = QEBAwaitingRequest(True)
+            QEBFinishRequest()
+            print(Request[1])
+            if Request[1] == bytes.fromhex('01'):
+                print('QEB Client Disconnected.')
+                QEBIsHost()
+                False
 def Client():
     print('Connected to QEB Host.')
-    while True:
-        Request = bytes.fromhex(input('What is your request? : '))
-        if Request == bytes.fromhex('ff'):
-            QEBRequest(Request)
-            Response = [True]
-            while Response[0] == True:
-                Response = QEBAwaitingRequest(False)
-            while QEBAwaitingFinishedRequest() == True:
-                pass
-            print(QEBReadResponse())
-        if Request == bytes.fromhex('f0'):
-            Filename = input('Request a File by name : ')
-            QEBWriteRequest(bytes(Filename, encoding='utf-8'))
-            QEBRequest(Request)
-            Response = [True]
-            while Response[0] == True:
-                Response = QEBAwaitingRequest(False)
-            while QEBAwaitingFinishedRequest() == True:
-                pass
-            QEBFile = open(Filename, 'wb')
-            QEBFile.write(QEBReadResponse())
-            QEBFile.close()
-        QEBOverWriteZero()
+    try:
+        while True:
+            Request = bytes.fromhex(input('What is your request? : '))
+            if Request == bytes.fromhex('ff'):
+                QEBRequest(Request)
+                Response = [True]
+                while Response[0] == True:
+                    Response = QEBAwaitingRequest(False)
+                while QEBAwaitingFinishedRequest() == True:
+                    pass
+                print(QEBReadResponse())
+            if Request == bytes.fromhex('f0'):
+                Filename = input('Request a File by name : ')
+                QEBWriteRequest(bytes(Filename, encoding='utf-8'))
+                QEBRequest(Request)
+                Response = [True]
+                while Response[0] == True:
+                    Response = QEBAwaitingRequest(False)
+                while QEBAwaitingFinishedRequest() == True:
+                    pass
+                QEBFile = open(Filename, 'wb')
+                QEBFile.write(QEBReadResponse())
+                QEBFile.close()
+            QEBOverWriteZero()
+    except KeyboardInterrupt:
+        QEBRequest(bytes.fromhex('01'))
 if __name__ == '__main__':
     if QEBIsHost():
         Server()
