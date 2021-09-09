@@ -1,27 +1,18 @@
-#268435462 Total.
-#268435456 Data.
-#5 Amount of Data.
-#1 Request Type.
-#1 Client or Host.
 import os
 def QEBIsHost():
-    QEBrsFile = open('QEB.bin', 'rb+')
-    QEBrsFile.seek(-1, os.SEEK_END)
+    QEBrsFile = open('QEB.bin', 'rb')
     QEBrs = QEBrsFile.read(1)
     QEBrsFile.close()
     QEBrsFile = open('QEB.bin', 'rb+')
     if QEBrs == bytes.fromhex('10'):
-        QEBrsFile.seek(-1, os.SEEK_END)
         QEBrsFile.write(bytes.fromhex('00'))
         QEBrsFile.close()
         return False
-    QEBrsFile.seek(-1, os.SEEK_END)
     QEBrsFile.write(bytes.fromhex('10'))
     QEBrsFile.close()
     return True
 def QEBHasClient():
     QEBrsFile = open('QEB.bin', 'rb')
-    QEBrsFile.seek(-1, os.SEEK_END)
     ANS = QEBrsFile.read(1)
     QEBrsFile.close()
     if ANS == bytes.fromhex('00'):
@@ -30,7 +21,7 @@ def QEBHasClient():
         return False
 def QEBAwaitingRequest(Host):
     QEBrsFile = open('QEB.bin', 'rb')
-    QEBrsFile.seek(-2, os.SEEK_END)
+    QEBrsFile.seek(1)
     Request = QEBrsFile.read(1)
     QEBrsFile.close()
     if Request == bytes.fromhex('00'):
@@ -39,27 +30,30 @@ def QEBAwaitingRequest(Host):
         if Request == bytes.fromhex('ff'):
             QEBrsFile = open('QEB.bin', 'rb+')
             Message = b'Hello World!'
+            QEBrsFile.seek(7)
             QEBrsFile.write(Message)
             QEBrsFile.close()
             QEBrsFile = open('QEB.bin', 'rb+')
-            QEBrsFile.seek(-7, os.SEEK_END)
+            QEBrsFile.seek(2)
             QEBrsFile.write(len(Message).to_bytes(5, 'big'))
             QEBrsFile.close()
         if Request == bytes.fromhex('f0'):
             QEBrsFile = open('QEB.bin', 'rb')
-            QEBrsFile.seek(-7, os.SEEK_END)
+            QEBrsFile.seek(2)
             LEN = int.from_bytes(QEBrsFile.read(5), 'big')
             QEBrsFile.close()
             QEBrsFile = open('QEB.bin', 'rb')
+            QEBrsFile.seek(7)
             Filename = QEBrsFile.read(LEN)
             QEBrsOFile = open(str(Filename, encoding='utf-8'), 'rb')
             Data = QEBrsOFile.read()
             QEBrsOFile.close()
             QEBrsFile = open('QEB.bin', 'rb+')
+            QEBrsFile.seek(7)
             QEBrsFile.write(Data)
             QEBrsFile.close()
             QEBrsFile = open('QEB.bin', 'rb+')
-            QEBrsFile.seek(-7, os.SEEK_END)
+            QEBrsFile.seek(2)
             QEBrsFile.write(len(Data).to_bytes(5, 'big'))
             QEBrsFile.close()
         return [False, Request]
@@ -67,29 +61,31 @@ def QEBAwaitingRequest(Host):
         return [False]
 def QEBRequest(Request):
     QEBrsFile = open('QEB.bin', 'rb+')
-    QEBrsFile.seek(-2, os.SEEK_END)
+    QEBrsFile.seek(1)
     QEBrsFile.write(Request)
     QEBrsFile.close()
 def QEBReadResponse():
     QEBrsFile = open('QEB.bin', 'rb')
-    QEBrsFile.seek(-7, os.SEEK_END)
+    QEBrsFile.seek(2)
     LEN = int.from_bytes(QEBrsFile.read(5), 'big')
     QEBrsFile.close()
     QEBrsFile = open('QEB.bin', 'rb+')
+    QEBrsFile.seek(7)
     Data = QEBrsFile.read(LEN)
     QEBrsFile.close()
     return Data
 def QEBWriteRequest(Filename):
     QEBrsFile = open('QEB.bin', 'rb+')
-    QEBrsFile.seek(-7, os.SEEK_END)
+    QEBrsFile.seek(2)
     QEBrsFile.write(len(Filename).to_bytes(5, 'big'))
     QEBrsFile.close()
     QEBrsFile = open('QEB.bin', 'rb+')
+    QEBrsFile.seek(7)
     QEBrsFile.write(Filename)
     QEBrsFile.close()
 def QEBAwaitingFinishedRequest():
     QEBrsFile = open('QEB.bin', 'rb')
-    QEBrsFile.seek(-2, os.SEEK_END)
+    QEBrsFile.seek(1)
     if QEBrsFile.read(1) != bytes.fromhex('00'):
         QEBrsFile.close()
         return True
@@ -97,16 +93,16 @@ def QEBAwaitingFinishedRequest():
     return False
 def QEBFinishRequest():
     QEBrsFile = open('QEB.bin', 'rb+')
-    QEBrsFile.seek(-2, os.SEEK_END)
+    QEBrsFile.seek(1)
     QEBrsFile.write(bytes.fromhex('00'))
     QEBrsFile.close()
 def QEBOverWriteZero():
     QEBrsFile = open('QEB.bin', 'rb')
-    QEBrsFile.seek(-7, os.SEEK_END)
+    QEBrsFile.seek(2)
     LEN = int.from_bytes(QEBrsFile.read(5), 'big')
     QEBrsFile.close()
     QEBrsFile = open('QEB.bin', 'rb+')
-    QEBrsFile.seek(-7, os.SEEK_END)
+    QEBrsFile.seek(2)
     QEBrsFile.write(bytes.fromhex('00'*6))
     QEBrsFile.close()
     QEBrsFile = open('QEB.bin', 'rb+')
