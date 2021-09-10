@@ -1,4 +1,3 @@
-import os
 def QEBIsHost():
     QEBrsFile = open('QEB.bin', 'rb')
     QEBrs = QEBrsFile.read(1)
@@ -111,6 +110,7 @@ def Server():
             print(Request[1])
             if Request[1] == bytes.fromhex('01'):
                 print('QEB Client Disconnected.')
+                QEBOverWriteZero()
                 QEBIsHost()
                 False
 def Client():
