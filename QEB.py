@@ -97,6 +97,7 @@ def QEBOverWriteZero():
     QEBrsFile.write(bytes.fromhex('00')*LEN)
     QEBrsFile.close()
 def Server():
+    QEBOverWriteZero()
     print('QEB Hosting Started.')
     while True:
         while QEBHasClient() == False:
@@ -110,7 +111,6 @@ def Server():
             print(Request[1])
             if Request[1] == bytes.fromhex('01'):
                 print('QEB Client Disconnected.')
-                QEBOverWriteZero()
                 QEBIsHost()
                 False
 def Client():
@@ -153,7 +153,6 @@ def Client():
                 QEBWriteResponse(Data)
                 while QEBAwaitingFinishedRequest() == True:
                     pass
-            QEBOverWriteZero()
     except KeyboardInterrupt:
         QEBRequest(bytes.fromhex('01'))
 if __name__ == '__main__':
