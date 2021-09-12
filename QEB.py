@@ -135,7 +135,7 @@ def Client():
                     Response = QEBAwaitingRequest(False)
                 while QEBAwaitingFinishedRequest() == True:
                     pass
-                QEBFile = open(Filename, 'wb')
+                QEBFile = open(input('What would you like to call the transferred file? : '), 'wb')
                 QEBFile.write(QEBReadResponse())
                 QEBFile.close()
             if Request == bytes.fromhex('0f'):
